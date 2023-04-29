@@ -31,26 +31,50 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define HALL_A HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5)
-#define HALL_B HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6)
-#define HALL_C HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7)
+#define HALL_L_A HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5)
+#define HALL_L_B HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6)
+#define HALL_L_C HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7)
 
-#define L1_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13, GPIO_PIN_RESET)
-#define L2_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14, GPIO_PIN_RESET)
-#define L3_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15, GPIO_PIN_RESET)
+#define HALL_R_A HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_10)
+#define HALL_R_B HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_11)
+#define HALL_R_C HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_12)
 
-#define L1_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13, GPIO_PIN_SET)
-#define L2_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14, GPIO_PIN_SET)
-#define L3_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15, GPIO_PIN_SET)
+#define L1_R_ON HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7, GPIO_PIN_RESET)
+#define L2_R_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0, GPIO_PIN_RESET)
+#define L3_R_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1, GPIO_PIN_RESET)
 
-#define H1_PWM_ON TIM1->CCR1=throttle
-#define H2_PWM_ON TIM1->CCR2=throttle
-#define H3_PWM_ON TIM1->CCR3=throttle
+#define L1_R_OFF HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7, GPIO_PIN_SET)
+#define L2_R_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0, GPIO_PIN_SET)
+#define L3_R_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1, GPIO_PIN_SET)
 
-#define H1_PWM_OFF TIM1->CCR1=0
-#define H2_PWM_OFF TIM1->CCR2=0
-#define H3_PWM_OFF TIM1->CCR3=0
-int throttle = (13439/10);
+
+#define L1_L_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13, GPIO_PIN_RESET)
+#define L2_L_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14, GPIO_PIN_RESET)
+#define L3_L_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15, GPIO_PIN_RESET)
+
+#define L1_L_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13, GPIO_PIN_SET)
+#define L2_L_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14, GPIO_PIN_SET)
+#define L3_L_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15, GPIO_PIN_SET)
+
+#define H1_R_PWM_ON TIM8->CCR1=throttle_R
+#define H2_R_PWM_ON TIM8->CCR2=throttle_R
+#define H3_R_PWM_ON TIM8->CCR3=throttle_R
+
+#define H1_R_PWM_OFF TIM8->CCR1=0
+#define H2_R_PWM_OFF TIM8->CCR2=0
+#define H3_R_PWM_OFF TIM8->CCR3=0
+
+#define H1_L_PWM_ON TIM1->CCR1=throttle_L
+#define H2_L_PWM_ON TIM1->CCR2=throttle_L
+#define H3_L_PWM_ON TIM1->CCR3=throttle_L
+
+#define H1_L_PWM_OFF TIM1->CCR1=0
+#define H2_L_PWM_OFF TIM1->CCR2=0
+#define H3_L_PWM_OFF TIM1->CCR3=0
+
+
+int throttle_L = (13439/3);
+int throttle_R = (13439/3);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -74,7 +98,11 @@ int throttle = (13439/10);
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_adc1;
 extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim8;
+extern DMA_HandleTypeDef hdma_usart2_rx;
+extern DMA_HandleTypeDef hdma_usart3_rx;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -218,77 +246,120 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 channel1 global interrupt.
+  */
+void DMA1_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel3 global interrupt.
+  */
+void DMA1_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel6 global interrupt.
+  */
+void DMA1_Channel6_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel6_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel6_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart2_rx);
+  /* USER CODE BEGIN DMA1_Channel6_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel6_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM1 update interrupt.
   */
 void TIM1_UP_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_IRQn 0 */
-    if (HALL_A == 1 && HALL_B == 0 && HALL_C == 1)    //STEP 1
+    if (HALL_L_A == 1 && HALL_L_B == 0 && HALL_L_C == 1)    //STEP 1
     {
-        L1_OFF;
-        H1_PWM_ON;
+        L1_L_OFF;
+        H1_L_PWM_ON;
 
 
-        H2_PWM_OFF;
-        L2_OFF;
+        H2_L_PWM_OFF;
+        L2_L_OFF;
 
-        H3_PWM_OFF;
-        L3_ON;
+        H3_L_PWM_OFF;
+        L3_L_ON;
 
-    } else if (HALL_A == 1 && HALL_B == 0 && HALL_C == 0)    //STEP 2
+    } else if (HALL_L_A == 1 && HALL_L_B == 0 && HALL_L_C == 0)    //STEP 2
     {
-        H1_PWM_OFF;
-        L1_OFF;
+        H1_L_PWM_OFF;
+        L1_L_OFF;
 
-        H2_PWM_ON;
-        L2_OFF;
+        H2_L_PWM_ON;
+        L2_L_OFF;
 
-        H3_PWM_OFF;
-        L3_ON;
-    } else if (HALL_A == 1 && HALL_B == 1 && HALL_C == 0)    //STEP 3
+        H3_L_PWM_OFF;
+        L3_L_ON;
+
+    } else if (HALL_L_A == 1 && HALL_L_B == 1 && HALL_L_C == 0)    //STEP 3
     {
-        H1_PWM_OFF;
-        L1_ON;
+        H1_L_PWM_OFF;
+        L1_L_ON;
 
-        L2_OFF;
-        H2_PWM_ON;
+        L2_L_OFF;
+        H2_L_PWM_ON;
 
-        H3_PWM_OFF;
-        L3_OFF;
-    } else if (HALL_A == 0 && HALL_B == 1 && HALL_C == 0)    //STEP 4
+        H3_L_PWM_OFF;
+        L3_L_OFF;
+    } else if (HALL_L_A == 0 && HALL_L_B == 1 && HALL_L_C == 0)    //STEP 4
     {
-        H1_PWM_OFF;
-        L1_ON;
+        H1_L_PWM_OFF;
+        L1_L_ON;
 
-        H2_PWM_OFF;
-        L2_OFF;
+        H2_L_PWM_OFF;
+        L2_L_OFF;
 
-        L3_OFF;
-        H3_PWM_ON;
+        L3_L_OFF;
+        H3_L_PWM_ON;
 
-    } else if (HALL_A == 0 && HALL_B == 1 && HALL_C == 1)    //STEP 5
+    } else if (HALL_L_A == 0 && HALL_L_B == 1 && HALL_L_C == 1)    //STEP 5
     {
-        H1_PWM_OFF;
-        L1_OFF;
+        H1_L_PWM_OFF;
+        L1_L_OFF;
 
-        H2_PWM_OFF;
-        L2_ON;
+        H2_L_PWM_OFF;
+        L2_L_ON;
 
-        L3_OFF;
-        H3_PWM_ON;
+        L3_L_OFF;
+        H3_L_PWM_ON;
 
-    } else if (HALL_A == 0 && HALL_B == 0 && HALL_C == 1)    //STEP 6
+    } else if (HALL_L_A == 0 && HALL_L_B == 0 && HALL_L_C == 1)    //STEP 6
     {
 
-        L1_OFF;
-        H1_PWM_ON;
+        L1_L_OFF;
+        H1_L_PWM_ON;
 
 
-        H2_PWM_OFF;
-        L2_ON;
+        H2_L_PWM_OFF;
+        L2_L_ON;
 
-        H3_PWM_OFF;
-        L3_OFF;
+        H3_L_PWM_OFF;
+        L3_L_OFF;
     }
 
 
@@ -297,6 +368,87 @@ void TIM1_UP_IRQHandler(void)
   /* USER CODE BEGIN TIM1_UP_IRQn 1 */
 
   /* USER CODE END TIM1_UP_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM8 update interrupt.
+  */
+void TIM8_UP_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM8_UP_IRQn 0 */
+    if (HALL_R_A == 1 && HALL_R_B == 0 && HALL_R_C == 1)    //STEP 1
+    {
+        L1_R_OFF;
+        H1_R_PWM_ON;
+
+        H2_R_PWM_OFF;
+        L2_R_OFF;
+
+        H3_R_PWM_OFF;
+        L3_R_ON;
+
+    } else if (HALL_R_A == 1 && HALL_R_B == 0 && HALL_R_C == 0)    //STEP 2
+    {
+        H1_R_PWM_OFF;
+        L1_R_OFF;
+
+        H2_R_PWM_ON;
+        L2_R_OFF;
+
+        H3_R_PWM_OFF;
+        L3_R_ON;
+
+    } else if (HALL_R_A == 1 && HALL_R_B == 1 && HALL_R_C == 0)    //STEP 3
+    {
+        H1_R_PWM_OFF;
+        L1_R_ON;
+
+        L2_R_OFF;
+        H2_R_PWM_ON;
+
+        H3_R_PWM_OFF;
+        L3_R_OFF;
+    } else if (HALL_R_A == 0 && HALL_R_B == 1 && HALL_R_C == 0)    //STEP 4
+    {
+        H1_R_PWM_OFF;
+        L1_R_ON;
+
+        H2_R_PWM_OFF;
+        L2_R_OFF;
+
+        L3_R_OFF;
+        H3_R_PWM_ON;
+
+    } else if (HALL_R_A == 0 && HALL_R_B == 1 && HALL_R_C == 1)    //STEP 5
+    {
+        H1_R_PWM_OFF;
+        L1_R_OFF;
+
+        H2_R_PWM_OFF;
+        L2_R_ON;
+
+        L3_R_OFF;
+        H3_R_PWM_ON;
+
+    } else if (HALL_R_A == 0 && HALL_R_B == 0 && HALL_R_C == 1)    //STEP 6
+    {
+
+        L1_R_OFF;
+        H1_R_PWM_ON;
+
+
+        H2_R_PWM_OFF;
+        L2_R_ON;
+
+        H3_R_PWM_OFF;
+        L3_R_OFF;
+    }
+
+  /* USER CODE END TIM8_UP_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim8);
+  /* USER CODE BEGIN TIM8_UP_IRQn 1 */
+
+  /* USER CODE END TIM8_UP_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

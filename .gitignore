@@ -1,3 +1,4 @@
 .gitignore
 .cproject
 cmake-build-debug
+.idea
