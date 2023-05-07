@@ -63,18 +63,30 @@
 #define H1_R_PWM_OFF TIM8->CCR1=0
 #define H2_R_PWM_OFF TIM8->CCR2=0
 #define H3_R_PWM_OFF TIM8->CCR3=0
+//
+//#define H1_L_PWM_ON TIM1->CCR1=throttle_L
+//#define H2_L_PWM_ON TIM1->CCR2=throttle_L
+//#define H3_L_PWM_ON TIM1->CCR3=throttle_L
 
-#define H1_L_PWM_ON TIM1->CCR1=throttle_L
-#define H2_L_PWM_ON TIM1->CCR2=throttle_L
-#define H3_L_PWM_ON TIM1->CCR3=throttle_L
+#define H1_L_PWM_ON HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1)
+#define H2_L_PWM_ON HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2)
+#define H3_L_PWM_ON HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3)
 
-#define H1_L_PWM_OFF TIM1->CCR1=0
-#define H2_L_PWM_OFF TIM1->CCR2=0
-#define H3_L_PWM_OFF TIM1->CCR3=0
+//#define H1_L_PWM_OFF HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1)
+//#define H2_L_PWM_OFF TIM1->CCR2=0
+//#define H3_L_PWM_OFF TIM1->CCR3=0
+
+#define H1_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1)
+#define H2_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2)
+#define H3_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3)
+
+#define H1_L HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+//    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+//    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 
 
-int throttle_L = (13439/3);
-int throttle_R = (13439/3);
+//int throttle_L = (13439/4);
+int throttle_R = (13439/4);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -102,7 +114,6 @@ extern DMA_HandleTypeDef hdma_adc1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim8;
 extern DMA_HandleTypeDef hdma_usart2_rx;
-extern DMA_HandleTypeDef hdma_usart3_rx;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -260,20 +271,6 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 channel3 global interrupt.
-  */
-void DMA1_Channel3_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
-
-  /* USER CODE END DMA1_Channel3_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart3_rx);
-  /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
-
-  /* USER CODE END DMA1_Channel3_IRQn 1 */
-}
-
-/**
   * @brief This function handles DMA1 channel6 global interrupt.
   */
 void DMA1_Channel6_IRQHandler(void)
@@ -298,12 +295,19 @@ void TIM1_UP_IRQHandler(void)
         L1_L_OFF;
         H1_L_PWM_ON;
 
-
         H2_L_PWM_OFF;
         L2_L_OFF;
 
         H3_L_PWM_OFF;
         L3_L_ON;
+//        L1_L_OFF;
+//        H1_L_PWM_ON;
+//
+//        H2_L_PWM_OFF;
+//        L2_L_ON;
+//
+//        H3_L_PWM_OFF;
+//        L3_L_OFF;
 
     } else if (HALL_L_A == 1 && HALL_L_B == 0 && HALL_L_C == 0)    //STEP 2
     {
@@ -315,6 +319,14 @@ void TIM1_UP_IRQHandler(void)
 
         H3_L_PWM_OFF;
         L3_L_ON;
+//        H1_L_PWM_OFF;
+//        L1_L_OFF;
+//
+//        H2_L_PWM_OFF;
+//        L2_L_ON;
+//
+//        L3_L_OFF;
+//        H3_L_PWM_ON;
 
     } else if (HALL_L_A == 1 && HALL_L_B == 1 && HALL_L_C == 0)    //STEP 3
     {
@@ -326,6 +338,15 @@ void TIM1_UP_IRQHandler(void)
 
         H3_L_PWM_OFF;
         L3_L_OFF;
+//        H1_L_PWM_OFF;
+//        L1_L_ON;
+//
+//        H2_L_PWM_OFF;
+//        L2_L_OFF;
+//
+//        L3_L_OFF;
+//        H3_L_PWM_ON;
+
     } else if (HALL_L_A == 0 && HALL_L_B == 1 && HALL_L_C == 0)    //STEP 4
     {
         H1_L_PWM_OFF;
@@ -336,6 +357,14 @@ void TIM1_UP_IRQHandler(void)
 
         L3_L_OFF;
         H3_L_PWM_ON;
+//        H1_L_PWM_OFF;
+//        L1_L_ON;
+//
+//        L2_L_OFF;
+//        H2_L_PWM_ON;
+//
+//        H3_L_PWM_OFF;
+//        L3_L_OFF;
 
     } else if (HALL_L_A == 0 && HALL_L_B == 1 && HALL_L_C == 1)    //STEP 5
     {
@@ -347,21 +376,34 @@ void TIM1_UP_IRQHandler(void)
 
         L3_L_OFF;
         H3_L_PWM_ON;
+//        H1_L_PWM_OFF;
+//        L1_L_OFF;
+//
+//        H2_L_PWM_ON;
+//        L2_L_OFF;
+//
+//        H3_L_PWM_OFF;
+//        L3_L_ON;
 
     } else if (HALL_L_A == 0 && HALL_L_B == 0 && HALL_L_C == 1)    //STEP 6
     {
-
         L1_L_OFF;
         H1_L_PWM_ON;
-
 
         H2_L_PWM_OFF;
         L2_L_ON;
 
         H3_L_PWM_OFF;
         L3_L_OFF;
+//        L1_L_OFF;
+//        H1_L_PWM_ON;
+//
+//        H2_L_PWM_OFF;
+//        L2_L_OFF;
+//
+//        H3_L_PWM_OFF;
+//        L3_L_ON;
     }
-
 
   /* USER CODE END TIM1_UP_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
@@ -432,10 +474,8 @@ void TIM8_UP_IRQHandler(void)
 
     } else if (HALL_R_A == 0 && HALL_R_B == 0 && HALL_R_C == 1)    //STEP 6
     {
-
         L1_R_OFF;
         H1_R_PWM_ON;
-
 
         H2_R_PWM_OFF;
         L2_R_ON;
