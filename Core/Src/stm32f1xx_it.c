@@ -22,6 +22,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,29 +65,29 @@
 #define H2_R_PWM_OFF TIM8->CCR2=0
 #define H3_R_PWM_OFF TIM8->CCR3=0
 //
-//#define H1_L_PWM_ON TIM1->CCR1=throttle_L
-//#define H2_L_PWM_ON TIM1->CCR2=throttle_L
-//#define H3_L_PWM_ON TIM1->CCR3=throttle_L
+#define H1_L_PWM_ON TIM1->CCR1=throttle_L
+#define H2_L_PWM_ON TIM1->CCR2=throttle_L
+#define H3_L_PWM_ON TIM1->CCR3=throttle_L
 
-#define H1_L_PWM_ON HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1)
-#define H2_L_PWM_ON HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2)
-#define H3_L_PWM_ON HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3)
+//#define H1_L_PWM_ON HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1)
+//#define H2_L_PWM_ON HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2)
+//#define H3_L_PWM_ON HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3)
 
-//#define H1_L_PWM_OFF HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1)
-//#define H2_L_PWM_OFF TIM1->CCR2=0
-//#define H3_L_PWM_OFF TIM1->CCR3=0
+#define H1_L_PWM_OFF TIM1->CCR2=0
+#define H2_L_PWM_OFF TIM1->CCR2=0
+#define H3_L_PWM_OFF TIM1->CCR3=0
 
-#define H1_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1)
-#define H2_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2)
-#define H3_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3)
+//#define H1_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1)
+//#define H2_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2)
+//#define H3_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3)
 
 #define H1_L HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 //    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 //    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 
 
-//int throttle_L = (13439/4);
-int throttle_R = (13439/4);
+int throttle_L = 0;
+int throttle_R = 0;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -114,8 +115,13 @@ extern DMA_HandleTypeDef hdma_adc1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim8;
 extern DMA_HandleTypeDef hdma_usart2_rx;
+extern DMA_HandleTypeDef hdma_usart2_tx;
+extern DMA_HandleTypeDef hdma_usart3_rx;
+extern DMA_HandleTypeDef hdma_usart3_tx;
+extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
-
+extern uint8_t UART2_rxBuffer[8];
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -271,6 +277,34 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles DMA1 channel2 global interrupt.
+  */
+void DMA1_Channel2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel2_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel2_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart3_tx);
+  /* USER CODE BEGIN DMA1_Channel2_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel3 global interrupt.
+  */
+void DMA1_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA1 channel6 global interrupt.
   */
 void DMA1_Channel6_IRQHandler(void)
@@ -282,6 +316,20 @@ void DMA1_Channel6_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel6_IRQn 1 */
 
   /* USER CODE END DMA1_Channel6_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel7 global interrupt.
+  */
+void DMA1_Channel7_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel7_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel7_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart2_tx);
+  /* USER CODE BEGIN DMA1_Channel7_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel7_IRQn 1 */
 }
 
 /**
@@ -413,6 +461,34 @@ void TIM1_UP_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles USART2 global interrupt.
+  */
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+  HAL_UART_IRQHandler(&huart2);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+
+  /* USER CODE END USART2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART3 global interrupt.
+  */
+void USART3_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART3_IRQn 0 */
+
+  /* USER CODE END USART3_IRQn 0 */
+  HAL_UART_IRQHandler(&huart3);
+  /* USER CODE BEGIN USART3_IRQn 1 */
+
+  /* USER CODE END USART3_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM8 update interrupt.
   */
 void TIM8_UP_IRQHandler(void)
@@ -492,5 +568,18 @@ void TIM8_UP_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart == &huart2){
+        HAL_UART_Transmit_DMA(&huart2, UART2_rxBuffer, sizeof(UART2_rxBuffer));
+        throttle_L = throttle_R = atoi(UART2_rxBuffer);
+        HAL_UART_Receive_DMA(&huart2, UART2_rxBuffer, sizeof(UART2_rxBuffer));
+    }
+}
 
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+//    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+
+}
 /* USER CODE END 1 */
