@@ -32,30 +32,30 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define HALL_L_A HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5)
-#define HALL_L_B HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6)
-#define HALL_L_C HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7)
+#define HALL_L_A HAL_GPIO_ReadPin(L_MTR_HALL_PHA_GPIO_Port, L_MTR_HALL_PHA_Pin)
+#define HALL_L_B HAL_GPIO_ReadPin(L_MTR_HALL_PHB_GPIO_Port, L_MTR_HALL_PHB_Pin)
+#define HALL_L_C HAL_GPIO_ReadPin(L_MTR_HALL_PHC_GPIO_Port, L_MTR_HALL_PHC_Pin)
 
-#define HALL_R_A HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_10)
-#define HALL_R_B HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_11)
-#define HALL_R_C HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_12)
+#define HALL_R_A HAL_GPIO_ReadPin(R_MTR_HALL_PHA_GPIO_Port, R_MTR_HALL_PHA_Pin)
+#define HALL_R_B HAL_GPIO_ReadPin(R_MTR_HALL_PHB_GPIO_Port, R_MTR_HALL_PHB_Pin)
+#define HALL_R_C HAL_GPIO_ReadPin(R_MTR_HALL_PHC_GPIO_Port, R_MTR_HALL_PHC_Pin)
 
-#define L1_R_ON HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7, GPIO_PIN_RESET)
-#define L2_R_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0, GPIO_PIN_RESET)
-#define L3_R_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1, GPIO_PIN_RESET)
+#define L1_R_ON HAL_GPIO_WritePin(R_MTR_PHA_LO_GPIO_Port, R_MTR_PHA_LO_Pin, GPIO_PIN_RESET)
+#define L2_R_ON HAL_GPIO_WritePin(R_MTR_PHB_LO_GPIO_Port, R_MTR_PHB_LO_Pin, GPIO_PIN_RESET)
+#define L3_R_ON HAL_GPIO_WritePin(R_MTR_PHC_LO_GPIO_Port, R_MTR_PHC_LO_Pin, GPIO_PIN_RESET)
 
-#define L1_R_OFF HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7, GPIO_PIN_SET)
-#define L2_R_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_0, GPIO_PIN_SET)
-#define L3_R_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1, GPIO_PIN_SET)
+#define L1_R_OFF HAL_GPIO_WritePin(R_MTR_PHA_LO_GPIO_Port, R_MTR_PHA_LO_Pin, GPIO_PIN_SET)
+#define L2_R_OFF HAL_GPIO_WritePin(R_MTR_PHB_LO_GPIO_Port, R_MTR_PHB_LO_Pin, GPIO_PIN_SET)
+#define L3_R_OFF HAL_GPIO_WritePin(R_MTR_PHC_LO_GPIO_Port, R_MTR_PHC_LO_Pin, GPIO_PIN_SET)
 
 
-#define L1_L_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13, GPIO_PIN_RESET)
-#define L2_L_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14, GPIO_PIN_RESET)
-#define L3_L_ON HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15, GPIO_PIN_RESET)
+#define L1_L_ON HAL_GPIO_WritePin(L_MTR_PHA_LO_GPIO_Port, L_MTR_PHA_LO_Pin, GPIO_PIN_RESET)
+#define L2_L_ON HAL_GPIO_WritePin(L_MTR_PHB_LO_GPIO_Port, L_MTR_PHB_LO_Pin, GPIO_PIN_RESET)
+#define L3_L_ON HAL_GPIO_WritePin(L_MTR_PHC_LO_GPIO_Port, L_MTR_PHC_LO_Pin, GPIO_PIN_RESET)
 
-#define L1_L_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13, GPIO_PIN_SET)
-#define L2_L_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14, GPIO_PIN_SET)
-#define L3_L_OFF HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15, GPIO_PIN_SET)
+#define L1_L_OFF HAL_GPIO_WritePin(L_MTR_PHA_LO_GPIO_Port, L_MTR_PHA_LO_Pin, GPIO_PIN_SET)
+#define L2_L_OFF HAL_GPIO_WritePin(L_MTR_PHB_LO_GPIO_Port, L_MTR_PHB_LO_Pin, GPIO_PIN_SET)
+#define L3_L_OFF HAL_GPIO_WritePin(L_MTR_PHC_LO_GPIO_Port, L_MTR_PHC_LO_Pin, GPIO_PIN_SET)
 
 #define H1_R_PWM_ON TIM8->CCR1=throttle_R
 #define H2_R_PWM_ON TIM8->CCR2=throttle_R
@@ -81,13 +81,21 @@
 //#define H2_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2)
 //#define H3_L_PWM_OFF HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3)
 
-#define H1_L HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+//#define H1_L HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 //    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 //    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 
 
 int throttle_L = 0;
 int throttle_R = 0;
+uint8_t left_arr[6][6] = {{1,0,0,0,0,1},
+                      {0,0,1,0,0,1},
+                      {0,1,1,0,0,0},
+                      {0,1,0,0,1,0},
+                      {0,0,0,1,1,0},
+                      {1,0,0,1,0,0}};
+
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -348,6 +356,7 @@ void TIM1_UP_IRQHandler(void)
 
         H3_L_PWM_OFF;
         L3_L_ON;
+
 //        L1_L_OFF;
 //        H1_L_PWM_ON;
 //
@@ -579,7 +588,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-//    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
 
 }
 /* USER CODE END 1 */
